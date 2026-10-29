@@ -16,6 +16,11 @@
         state: started
         enabled: yes
 
+    - name: install PyMySQL for the mysql modules
+      package:
+        name: python3-PyMySQL
+        state: present
+
     - name: setup mysql root password
       ansible.mysql.mysql_user:
         name: root
