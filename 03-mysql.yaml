@@ -22,9 +22,10 @@
         state: present
 
     - name: setup mysql root password
-      ansible.mysql.mysql_user:
+      community.mysql.mysql_user:
         name: root
         host: localhost
-        password: "{{ mysql_root_password }}"
+        plugin: caching_sha2_password
+        plugin_auth_string: "{{ mysql_root_password }}"
         check_implicit_admin: true
         state: present
