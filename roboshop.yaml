@@ -3,7 +3,7 @@
   connection: local
   vars:
     instances: ["mongodb", "redis", "mysql", "rabbitmq"]
-    action: "delete"
+    action: "create"
     domain_name: "agenticengg.online"
     ami_id: "ami-0055977a6e828a4f4"
     instance_type: "t3.micro"
