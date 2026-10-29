@@ -28,6 +28,8 @@
         plugin: caching_sha2_password
         plugin_auth_string: "{{ mysql_root_password }}"
         check_implicit_admin: true
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
         state: present
         
     - name: allow root from other servers (shipping loads the data remotely)
