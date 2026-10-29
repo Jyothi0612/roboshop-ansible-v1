@@ -29,3 +29,14 @@
         plugin_auth_string: "{{ mysql_root_password }}"
         check_implicit_admin: true
         state: present
+        
+    - name: allow root from other servers (shipping loads the data remotely)
+      community.mysql.mysql_user:
+        name: root
+        host: "%"
+        plugin: caching_sha2_password
+        plugin_auth_string: "{{ mysql_root_password }}"
+        priv: "*.*:ALL,GRANT"
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+        state: present
