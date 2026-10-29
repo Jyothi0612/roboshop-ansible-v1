@@ -7,6 +7,15 @@
       src: mongo.repo
       dest: /etc/yum.repos.d/mongo.repo
 
-  - name: print app name
-    debug:
-      msg: "{{ app_name }}"
+  # - name: test the inventory variable
+  #   debug:
+  #     msg: "{{ app_name }}"
+  - name: install mongodb
+    ansible.builtin.dnf:
+      name: mongodb-org
+      state: present
+  - name: start and enable mongodb
+    service:
+      name: mongodb
+      state: started
+      enable: yes
