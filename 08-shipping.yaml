@@ -10,23 +10,24 @@
         name:
           - maven
           - java-25-openjdk-devel
+          - maven-openjdk25
         state: present
 
-    - name: find java25 path
-      shell: readlink -f $(ls /usr/lib/jvm/java-25-openjdk*/bin/java | head -1)
-      register: java25
+    # - name: find java25 path
+    #   shell: readlink -f $(ls /usr/lib/jvm/java-25-openjdk*/bin/java | head -1)
+    #   register: java25
     
-    - name: print java25 path
-      debug:
-        msg: "{{ java25 }}"
+    # - name: print java25 path
+    #   debug:
+    #     msg: "{{ java25 }}"
 
-    - name: make java25 as default
-      command: alternatives --set java {{ java25.stdout }}
+    # - name: make java25 as default
+    #   command: alternatives --set java {{ java25.stdout }}
 
-    - name: set JAVA_HOME
-      copy:
-        content: "export JAVA_HOME={{ java25.stdout | dirname | dirname }}"
-        dest: /etc/profile.d/java.sh
+    # - name: set JAVA_HOME
+    #   copy:
+    #     content: "export JAVA_HOME={{ java25.stdout | dirname | dirname }}"
+    #     dest: /etc/profile.d/java.sh
 
     - name: create roboshop system user
       user:
@@ -63,13 +64,23 @@
         dest: /app
         remote_src: yes
 
-    - name: install dependencies
+    - name: mvn version without JAVA_HOME
+      command: mvn --version
+      args:
+        chdir: /app
+      register: mvn_default
+
+    - name: print mvn version without JAVA_HOME
+      debug:
+        msg: "{{ mvn_default.stdout_lines }}"
+
+    - name: build shipping application
       command: mvn clean package
       args:
         chdir: /app
-      environment:
-        JAVA_HOME: "{{ java25.stdout | dirname | dirname }}"
-        MAVEN_OPTS: "-Djdk.tls.namedGroups=secp256r1,secp384r1"
+      # environment:
+      #   JAVA_HOME: "{{ java25.stdout | dirname | dirname }}"
+      #   MAVEN_OPTS: "-Djdk.tls.namedGroups=secp256r1,secp384r1"
 
     - name: copy shipping service
       template: 
