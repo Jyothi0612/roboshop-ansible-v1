@@ -66,3 +66,17 @@
       dnf:
         name: mongodb-mongosh
         state: present
+
+    - name: check products loaded or not
+      command: mongosh --host "{{ mongo_host }}" --quiet --eval 'db.getSiblingDB("catalogue").products.countDocuments()'
+      register: catalogue_products_count
+
+    - name: print catalogue products count
+      debug:
+        msg: "Catalogue products count: {{ catalogue_products_count }}"
+
+    - name: enable and start catalogue service
+      systemd:
+        name: catalogue
+        state: started
+        enabled: yes
