@@ -68,7 +68,8 @@
       args:
         chdir: /app
       environment:
-        MAVEN_OPTS: "-Djdk.tls.namedGroups=\"secp256r1,secp384r1\""
+        JAVA_HOME: "{{ java25.stdout | dirname | dirname }}"
+        MAVEN_OPTS: "-Djdk.tls.namedGroups=secp256r1,secp384r1"
 
     - name: copy shipping service
       template: 
