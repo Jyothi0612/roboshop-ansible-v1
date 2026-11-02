@@ -2,3 +2,10 @@ ansible_user: ec2-user
 ansible_password: DevOps321
 mongodb_host: mongodb.agenticengg.online
 redis_host: redis.agenticengg.online
+mysql_host: mysql.agenticengg.online
+rabbitmq_host: rabbitmq.agenticengg.online
+catalogue_host: catalogue.agenticengg.online
+user_host: user.agenticengg.online
+cart_host: cart.agenticengg.online
+shipping_host: shipping.agenticengg.online
+payment_host: payment.agenticengg.online
