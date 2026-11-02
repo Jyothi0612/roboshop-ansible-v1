@@ -11,3 +11,76 @@
           - maven
           - java-25-openjdk-devel
         state: present
+
+    - name: find java25 path
+      shell: readlink -f $(ls /usr/lib/jvm/java-25-openjdk*/bin/java | head -1)
+      register: java25
+    
+    - name: print java25 path
+      debug:
+        msg: "{{ java25 }}"
+
+    - name: make java25 as default
+      command: alternatives --set java {{ java25.stdout }}
+
+    - name: set JAVA_HOME
+      copy:
+        content: "export JAVA_HOME={{ java25.stdout | dirname | dirname }}"
+        dest: /etc/profile.d/java.sh
+
+    - name: create roboshop system user
+      user:
+        name: roboshop
+        create_home: false
+        home: /app
+        system: true
+        shell: /sbin/nologin
+        comment: "roboshop system user"
+
+    - name: remove existing app directory
+      file:
+        path: /app
+        state: absent
+
+    - name: remove shipping.zip
+      file:
+        path: /tmp/shipping.zip
+        state: absent
+
+    - name: create app directory
+      file:
+        path: /app
+        state: directory
+
+    - name: download shipping application
+      get_url:
+        url: https://raw.githubusercontent.com/daws-92s/roboshop-documentation/refs/heads/main/artifacts/shipping-v4.zip
+        dest: /tmp/shipping.zip
+
+    - name: unzip shipping
+      unarchive:
+        src: /tmp/shipping.zip
+        dest: /app
+        remote_src: yes
+
+    - name: install dependencies
+      command: mvn clean package
+      args:
+        chdir: /app
+      environment:
+        MAVEN_OPTS: "-Djdk.tls.namedGroups=\"secp256r1,secp384r1\""
+
+    - name: copy shipping service
+      template: 
+        src: shipping.service.j2
+        dest: /etc/systemd/system/shipping.service
+
+    - name: daemon reload systemd
+      systemd_service:
+        daemon_reload: true
+
+    - name: start shipping service
+      service:
+        name: shipping  
+        state: started
+        enabled: yes
