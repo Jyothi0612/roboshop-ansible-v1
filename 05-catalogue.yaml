@@ -79,8 +79,11 @@
       shell: mongosh --host "{{ mongodb_host }}" < /app/db/master-data.js
       when: catalogue_products_count.stdout | int == 0
 
+    - name: daemon reload systemd
+      systemd_service:
+        daemon_reload: true
+
     - name: enable and start catalogue service
-      systemd:
-        name: catalogue
-        state: started
+      service:
+        state: restarted
         enabled: yes
