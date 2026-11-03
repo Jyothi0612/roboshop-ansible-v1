@@ -50,6 +50,16 @@
         virtualenv: /app/.venv
         virtualenv_command: python3.14 -m venv
 
+    - name: install SELinux tools
+      dnf:
+        name: policycoreutils-python-utils
+        state: present
+
+    - name: label venv binaries so systemd can run them (SELinux)
+      shell: |
+        semanage fcontext -a -t bin_t "/app/.venv/bin(/.*)?" 2>/dev/null || true
+        restorecon -Rv /app/.venv/bin
+
     - name: configure payment service
       template:
         src: payment.service.j2
