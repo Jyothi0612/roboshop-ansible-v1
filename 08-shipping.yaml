@@ -88,25 +88,41 @@
       args:
         chdir: /app  
 
+    - name: check cities data exists or not
+      command: mysql -h "{{ mysql_host }}" -uroot -p{{ mysql_root_password }} -N -B -e "SELECT COUNT(*) FROM cities.cities;"
+      register: cities_data_count
+      ignore_errors: true
+      tags:
+        - mysql
+
+    - name: print cities data count
+      debug:
+        msg: "Cities data count: {{ cities_data_count }}"
+      tags:
+        - mysql
+
+    - name: load cities data into mysql
+      shell: mysql -h "{{ mysql_host }}" -uroot -p{{ mysql_root_password }} < /app/db/master-data.sql
+      when: cities_data_count.rc != 0 or cities_data_count.stdout | int == 0
+      tags:
+        - mysql
+
+    - name: create app user in mysql
+      shell: mysql -h "{{ mysql_host }}" -uroot -p{{ mysql_root_password }} < /app/db/user-data.sql
+      tags:
+        - mysql
+
     - name: copy shipping service
       template: 
         src: shipping.service.j2
         dest: /etc/systemd/system/shipping.service
 
-    - name: check cities data exists or not
-      command: mysql -h "{{ mysql_host }}" -uroot -p{{ mysql_root_password }} -N -B -e "SELECT COUNT(*) FROM cities.cities;"
-      register: cities_data_count
-
-    - name: print cities data count
-      debug:
-        msg: "Cities data count: {{ cities_data_count.stdout }}"
-
     - name: daemon reload systemd
       systemd_service:
         daemon_reload: true
 
-    - name: start shipping service
+    - name: start and enable shipping service
       service:
         name: shipping  
-        state: started
+        state: restarted
         enabled: yes
