@@ -11,6 +11,7 @@
           - maven
           - java-25-openjdk-devel
           - maven-openjdk25
+          - mysql
         state: present
 
     # - name: find java25 path
@@ -82,10 +83,23 @@
       #   JAVA_HOME: "{{ java25.stdout | dirname | dirname }}"
       #   MAVEN_OPTS: "-Djdk.tls.namedGroups=secp256r1,secp384r1"
 
+    - name: move shipping jar to shipping.jar
+      command: mv target/shipping.jar shipping.jar
+      args:
+        chdir: /app  
+
     - name: copy shipping service
       template: 
         src: shipping.service.j2
         dest: /etc/systemd/system/shipping.service
+
+    - name: check cities data exists or not
+      command: mysql -h "{{ mysql_host }}" -uroot -p{{ mysql_root_password }} -N -B -e "SELECT COUNT(*) FROM cities.cities;"
+      register: cities_data_count
+
+    - name: print cities data count
+      debug:
+        msg: "Cities data count: {{ cities_data_count.stdout }}"
 
     - name: daemon reload systemd
       systemd_service:

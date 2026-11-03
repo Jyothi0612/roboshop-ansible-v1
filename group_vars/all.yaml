@@ -9,3 +9,4 @@ user_host: user.agenticengg.online
 cart_host: cart.agenticengg.online
 shipping_host: shipping.agenticengg.online
 payment_host: payment.agenticengg.online
+mysql_root_password: RoboShop@1
