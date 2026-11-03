@@ -108,7 +108,7 @@
         - mysql
 
     - name: create app user in mysql
-      shell: mysql -h "{{ mysql_host }}" -uroot -p{{ mysql_root_password }} < /app/db/user-data.sql
+      shell: mysql -h "{{ mysql_host }}" -uroot -p{{ mysql_root_password }} < /app/db/app-user.sql
       tags:
         - mysql
 
