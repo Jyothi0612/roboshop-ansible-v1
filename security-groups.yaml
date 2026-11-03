@@ -4,8 +4,9 @@
   connection: local
   gather_facts: false
   vars:
-    region: us-east-1
-    # Supply vpc_id through --extra-vars (see SECURITY-GROUPS.md).
+    region: eu-north-1
+    # Default VPC in the Stockholm account. Override with -e vpc_id=... for another VPC.
+    vpc_id: vpc-09dc55d870bfce035
     # roboshop-common already exists and is managed separately.
     rabbitmq_management_enabled: false
     service_groups:
@@ -53,7 +54,7 @@
     management_rules:
       - proto: tcp
         ports: [15672]
-        cidr_ip: "{{ ssh_cidr }}"
+        cidr_ip: "{{ admin_cidr }}"
 
   tasks:
     - name: Require the target VPC
@@ -66,9 +67,9 @@
     - name: Require an allowed IP when RabbitMQ management is enabled
       ansible.builtin.assert:
         that:
-          - ssh_cidr is defined
-          - ssh_cidr | default('') is match('^([0-9]{1,3}\.){3}[0-9]{1,3}/32$')
-        fail_msg: Supply ssh_cidr as the management client's IPv4 address with /32.
+          - admin_cidr is defined
+          - admin_cidr | default('') is match('^([0-9]{1,3}\.){3}[0-9]{1,3}/32$')
+        fail_msg: Supply admin_cidr as your IPv4 address with /32 (for RabbitMQ management on 15672).
       when: rabbitmq_management_enabled | bool
 
     # Create every group first so references work regardless of loop order.
