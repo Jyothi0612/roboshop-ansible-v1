@@ -1,0 +1,26 @@
+- name: configure frontend server
+  hosts: frontend
+  become: yes
+  tasks:
+    - name: enable nginx 1.26
+      command: dnf module enable nginx:1.26 -y
+
+    - name: install nginx
+      dnf:
+        name: nginx
+        state: present
+
+    - name: start and enable nginx
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Find all contents inside the directory
+      ansible.builtin.find:
+        paths: /usr/share/nginx/html/
+        recurse: true
+        hidden: true
+        file_type: any
+      register: directory_contents
+
